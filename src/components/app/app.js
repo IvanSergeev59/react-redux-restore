@@ -2,17 +2,20 @@
 import React from "react";
 import "./app.css";
 import {withBookstoreService} from '../hoc';
-import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { Routes, Route} from "react-router-dom";
+import ShopHeader from "../shop-header";
 import { CardPage, HomePage } from "../pages";
 
 const App = ({bookstoreService}) => {
     console.log(bookstoreService.getBooks())
     return (
-        <Routes>
-            <Route path="/card" element = {<CardPage />} />
-            <Route path="/" element = {<HomePage />} />
-        </Routes>
-
+        <main role="main" className="container">
+            <ShopHeader numItems={5} total={210} />
+            <Routes>
+                <Route path="/card" element = {<CardPage />} />
+                <Route path="/" element = {<HomePage />} />
+            </Routes>
+        </main>
         )
 };
 
