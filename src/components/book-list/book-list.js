@@ -2,47 +2,63 @@ import React, {Component} from "react";
 import BookListItem from "../book-list-item";
 import {connect} from 'react-redux'
 import { withBookstoreService } from "../hoc";
-import {booksLoaded} from '../../actions';
+import {fetchBooks, bookAddedToCart} from '../../actions';
 import compose from "../../utils";
 
 import './book-list.css'
+import ErrorIndicator from "../error-indicator/error-indicator";
 
-class BookList extends Component {
+const BookList = ({books, onAddedToCart}) => {
+    return (
+        <ul className="book-list">
+            {books.map((book)=> {
+              return (  <li key={book.id}><BookListItem onAddedToCart={() => onAddedToCart(book.id)} book={book}/></li> )
+            })}
+    
+        </ul>
+    )
+}
+
+class BookListContainer extends Component {
 
     componentDidMount() {
-        const { bookstoreService } = this.props;
-        const data = bookstoreService.getBooks();
-
-        this.props.booksLoaded(data)
+        this.props.fetchBooks();        
     }
 
     render() {
-        const {books} = this.props;
-        return (
-            <ul className="book-list">
-                {books.map((book)=> {
-                  return (  <li key={book.id}><BookListItem book={book}/></li> )
-                })}
+        const {loading, error, books, onAddedToCart} = this.props;
+
+        if (loading) {
+            return ( <h2>Loading...</h2>)
+        }
+
+        if (error) {
+            return  <ErrorIndicator />
+        }       
         
-            </ul>
-        )
-        
+        return <BookList books={books} onAddedToCart={onAddedToCart}/>
     }
 }
 
-const mapStateToProps = ({books}) => {
+
+
+const mapStateToProps = ({books, loading, error}) => {
     return {
-        books
+        books, loading, error
     }
-}
+};
 
-const mapDispatchToProps = {
-    booksLoaded
-}    
+const mapDispatchToProps = (dispatch, ownProps) => {
+    const {bookstoreService} = ownProps
+    return {
+       fetchBooks: fetchBooks(bookstoreService, dispatch),
+       onAddedToCart: (id) => dispatch(bookAddedToCart(id))
+    }
+};    
 
 
 export default compose(
     withBookstoreService(),
     connect(mapStateToProps, mapDispatchToProps)
-)(BookList)
+)(BookListContainer)
 
